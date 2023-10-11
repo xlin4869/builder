@@ -202,6 +202,7 @@ class DatasetManager(BaseManager):
 
     def get_datasets(self, dataset_id: str = None) -> Union[Dataset, list[Dataset]]:
         if dataset_id is not None:
+            print(self.get_dataset_urn(dataset_id))
             cache = self.redis.get(self.get_dataset_urn(dataset_id))
             if cache:
                 return [Dataset(**json.loads(cache))]
@@ -330,8 +331,8 @@ class DatasetManager(BaseManager):
     def upsert_segment(self, dataset_id, uid, segment_id: str, content: str):
         def get_page_size_via_segment_id(segment):
             return int(segment.split("-")[-1])
-
         dataset = self.get_datasets(dataset_id)[0]
+        print(dataset)
         matching_url = None
         for doc in dataset.documents:
             if doc.uid == uid:
@@ -348,7 +349,7 @@ class DatasetManager(BaseManager):
                             ]["text"]
                         )
                         doc.content_size -= segment_length
-                        # Update hundreaith_id values
+                        # Update hundredth_id values
                         if len(doc.hundredth_ids) == 1:
                             if 0 <= current_page_size < doc.hundredth_ids[0]:
                                 doc.hundredth_ids[0] += 1
@@ -364,7 +365,7 @@ class DatasetManager(BaseManager):
                     doc.content_size += len(content)
                     if doc.hundredth_ids:
                         if doc.page_size - doc.hundredth_ids[-1] >= 100:
-                            seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(doc.hundreaith_id[-1], doc.page_size)]
+                            seg_ids = [f"{dataset_id}-{matching_url}-{i}" for i in range(doc.hundredth_ids[-1], doc.page_size)]
                             vectors = Retriever.fetch_vectors(ids=seg_ids)
                             if len(vectors) >= 100:
                                 last_vector_id = get_page_size_via_segment_id(list(vectors.keys())[-1])
@@ -385,6 +386,7 @@ class DatasetManager(BaseManager):
                     )
                     doc.content_size += len(content) - segment_length
                 break
+        print(dataset.dict())
         self._update_dataset(dataset_id, dataset.dict())
         urn = self.get_dataset_urn(dataset_id)
         self.redis.set(urn, json.dumps(dataset.dict()))
