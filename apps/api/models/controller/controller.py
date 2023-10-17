@@ -276,7 +276,7 @@ class DatasetManager(BaseManager):
         else:
             start_idx = 0 if offset == 0 else hundredth_ids[offset // 100 - 1] + 1
             end_idx = segment_size if start_idx - 1 == hundredth_ids[-1] else hundredth_ids[(offset + limit) // 100 - 1]
-        seg_ids_to_fetch = [f"{dataset_id}-{matching_url}-{i}" for i in range(start_idx, end_idx+1)]
+        seg_ids_to_fetch = [f"{dataset_id}-{matching_url}-{i}" for i in range(start_idx, end_idx + 1)]
         vectors = Retriever.fetch_vectors(ids=seg_ids_to_fetch)
         segments = [{"segment_id": seg_id, "content": vectors[seg_id]["metadata"]["text"]} for seg_id in sorted(vectors, key=lambda x: int(x.split('-')[-1]))]
         return segment_size, segments 
