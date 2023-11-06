@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Trash } from 'lucide-react'
 import useSWRMutation from 'swr/mutation'
 
@@ -9,7 +9,7 @@ import { fetcher } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import ConfirmDialog from '@/components/confirm-dialog'
 
-import BaseSideBar from '../../../app/[app_id]/(manage)/sidebar'
+import BaseSideBar from '../../../(app)/app/[app_id]/(manage)/sidebar'
 
 interface IProps {
   name: string
@@ -21,7 +21,6 @@ function deleteDataset(url: string) {
 }
 
 const Sidebar = ({ datasetId, name }: IProps) => {
-  const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
   const { trigger, isMutating } = useSWRMutation(
     `/api/datasets/${datasetId}`,
@@ -36,6 +35,7 @@ const Sidebar = ({ datasetId, name }: IProps) => {
       router.refresh()
     } catch (error) {}
   }
+  const nextUrl = 'nextUrl=/datasets'
   return (
     <BaseSideBar>
       <div className="pl-3 text-sm font-medium uppercase text-slate-500">
@@ -45,7 +45,7 @@ const Sidebar = ({ datasetId, name }: IProps) => {
       <BaseSideBar.Link
         href={{
           pathname: `/dataset/${datasetId}/settings/basics`,
-          search: searchParams?.toString(),
+          search: nextUrl,
         }}
         name="Basics"
         desc=""
@@ -53,7 +53,7 @@ const Sidebar = ({ datasetId, name }: IProps) => {
       <BaseSideBar.Link
         href={{
           pathname: `/dataset/${datasetId}/settings/documents`,
-          search: searchParams?.toString(),
+          search: nextUrl,
         }}
         name="Data"
         desc=""
